@@ -4,6 +4,8 @@ use thiserror::Error;
 
 mod problem01;
 mod problem02;
+mod problem03;
+mod problem04;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -60,5 +62,7 @@ pub fn parse_input(file_name: &str) -> Result<Vec<String>, Error> {
 fn main() {
     let _ = problem01::problem01();
     let _ = problem02::problem02();
+    let _ = problem03::problem03();
+    let _ = problem04::problem04();
     println!("Hello, world!");
 }

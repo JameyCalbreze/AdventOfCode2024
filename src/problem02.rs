@@ -94,9 +94,9 @@ pub fn problem02() -> Result<(), Error> {
     let processed_input = process_input(input)?;
 
     let solution_one = problem02_part1(&processed_input)?;
-    println!("Solution Problem02 Part 1: {solution_one}");
+    println!("Problem 02 Part 1: {solution_one}");
     let solution_two = problem02_part2(&processed_input)?;
-    println!("Solution Problem02 Part 2: {solution_two}");
+    println!("Problem 02 Part 2: {solution_two}");
 
     Ok(())
 }
