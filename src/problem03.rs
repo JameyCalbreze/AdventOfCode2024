@@ -1,10 +1,10 @@
-use crate::Error;
 use crate::parse_input;
+use crate::Error;
 use regex::Regex;
 
 fn problem03_part1(input: &Vec<String>) -> Result<i32, Error> {
-    let selector = Regex::new(r"mul\(([0-9]+),([0-9]+)\)")
-        .expect("hard coded selector for this problem");
+    let selector =
+        Regex::new(r"mul\(([0-9]+),([0-9]+)\)").expect("hard coded selector for this problem");
 
     let mut sum = 0;
 
@@ -20,8 +20,8 @@ fn problem03_part1(input: &Vec<String>) -> Result<i32, Error> {
 }
 
 fn problem03_part2(input: &Vec<String>) -> Result<i32, Error> {
-    let mul_selector = Regex::new(r"mul\(([0-9]+),([0-9]+)\)")
-        .expect("hard coded selector for this problem");
+    let mul_selector =
+        Regex::new(r"mul\(([0-9]+),([0-9]+)\)").expect("hard coded selector for this problem");
 
     let do_selector = Regex::new(r"do\(\)").expect("Nothing special with this regex");
     let dont_selector = Regex::new(r"don't\(\)").expect("nothing special here");
@@ -52,9 +52,9 @@ fn problem03_part2(input: &Vec<String>) -> Result<i32, Error> {
                 if mul_index < dont_index {
                     // Pull out values
                     let (_, [left_str, right_str]) = mul_selector
-                    .captures_at(slice, mul_index)
-                    .expect("Already matched")
-                    .extract();
+                        .captures_at(slice, mul_index)
+                        .expect("Already matched")
+                        .extract();
 
                     // Parse the values
                     let left_i32: i32 = left_str.parse()?;
@@ -67,25 +67,25 @@ fn problem03_part2(input: &Vec<String>) -> Result<i32, Error> {
                     index += mul_index + 1;
                 } else if dont_index < mul_index {
                     mul_enabled = false;
-                    
+
                     // Shift to don't and offset to progress
                     index += dont_index + 1;
                 } else {
                     // Progress to end of slice as there's nothing left to do
                     index += slice.len();
-                }               
+                }
             } else {
                 // End of a do in this line
                 let do_index = match do_selector.find(slice) {
                     Some(capture) => {
                         mul_enabled = true;
                         capture.end()
-                    },
+                    }
 
                     // Nothing to do for the rest of the slice
                     None => slice.len(),
                 };
-                
+
                 // Progress
                 index += do_index;
             }

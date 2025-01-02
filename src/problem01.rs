@@ -28,7 +28,7 @@ fn problem01_part2(input: &Input) -> Result<i32, Error> {
     for num in c2 {
         let count = match right_col_counter.get(&num) {
             Some(c) => c + 1,
-            None => 1
+            None => 1,
         };
 
         right_col_counter.insert(num, count);
@@ -38,7 +38,7 @@ fn problem01_part2(input: &Input) -> Result<i32, Error> {
     for num in c1 {
         left_col_set.insert(num);
     }
-    
+
     let mut sum = 0;
 
     for num in left_col_set {
@@ -67,13 +67,21 @@ fn process_input(input: Vec<String>) -> Result<Input, Error> {
         let s = line.as_str();
         let left_num: i32 = match s[..5].parse() {
             Ok(n) => n,
-            Err(_) => return Err(Error::PreprocessError("Failed to parse i32 from input".to_string())),
+            Err(_) => {
+                return Err(Error::PreprocessError(
+                    "Failed to parse i32 from input".to_string(),
+                ))
+            }
         };
         c1.push(left_num);
 
         let right_num: i32 = match s[8..].parse() {
             Ok(n) => n,
-            Err(_) => return Err(Error::PreprocessError("Failed to parse i32 from input".to_string())),
+            Err(_) => {
+                return Err(Error::PreprocessError(
+                    "Failed to parse i32 from input".to_string(),
+                ))
+            }
         };
         c2.push(right_num);
     }

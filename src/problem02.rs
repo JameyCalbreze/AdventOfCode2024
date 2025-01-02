@@ -8,7 +8,7 @@ fn report_is_safe(report: &Vec<i32>) -> bool {
 
     // Assuming we always have 2 or more numbers in a report
     for i in 1..report.len() {
-        let prev_num = report[i-1];
+        let prev_num = report[i - 1];
         let cur_num = report[i];
 
         // How did we change
@@ -19,7 +19,7 @@ fn report_is_safe(report: &Vec<i32>) -> bool {
         valid_distance = valid_distance && delta.abs() >= 1 && delta.abs() <= 3
     }
 
-    return ((increasing && !decreasing) || (!increasing && decreasing)) && valid_distance
+    return ((increasing && !decreasing) || (!increasing && decreasing)) && valid_distance;
 }
 
 fn report_valid_with_errors(report: &Vec<i32>) -> bool {
@@ -27,7 +27,7 @@ fn report_valid_with_errors(report: &Vec<i32>) -> bool {
         return true;
     }
 
-    // Brute force cause... I can 
+    // Brute force cause... I can
     for i in 0..report.len() {
         let mut sub_report = Vec::new();
         for j in 0..report.len() {
@@ -64,7 +64,7 @@ fn problem02_part2(input: &Input) -> Result<i32, Error> {
 }
 
 struct Input {
-    reports: Vec<Vec<i32>>
+    reports: Vec<Vec<i32>>,
 }
 
 fn process_input(input: Vec<String>) -> Result<Input, Error> {
@@ -78,7 +78,7 @@ fn process_input(input: Vec<String>) -> Result<Input, Error> {
         for i in 0..line_bytes.len() {
             if line_bytes[i] == b' ' {
                 numbers.push(line[cur_num_start..i].parse()?);
-                cur_num_start = i+1;
+                cur_num_start = i + 1;
             }
         }
         numbers.push(line[cur_num_start..].parse()?);
