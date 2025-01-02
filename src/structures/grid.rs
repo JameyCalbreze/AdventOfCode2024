@@ -153,6 +153,7 @@ mod test {
                 index += 1;
             }
         }
+        assert_eq!(100, index);
 
         index = 0;
         for row in 0..10 {

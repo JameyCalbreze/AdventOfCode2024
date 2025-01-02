@@ -6,6 +6,7 @@ mod problem01;
 mod problem02;
 mod problem03;
 mod problem04;
+mod problem05;
 mod structures;
 
 #[derive(Debug, Error)]
@@ -68,7 +69,8 @@ fn main() {
     let _ = problem01::problem01();
     let _ = problem02::problem02();
     let _ = problem03::problem03();
-    match problem04::problem04() {
+    let _ = problem04::problem04();
+    match problem05::problem05() {
         Ok(_) => (),
         Err(e) => println!("{e}"),
     }
