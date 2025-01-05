@@ -1,33 +1,16 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{parse_input, Error};
+use crate::{parse_input, utils::MergeSort, Error};
 
 /// Is the list of pages correct? If so what is the middle page?
 fn problem05_part1(input: &Input) -> Result<i32, Error> {
     let mut count = 0;
 
     for pages in &input.page_lists {
-        let mut valid_pages = true;
-
-        let mut cur_page_index = 0;
-        while valid_pages && cur_page_index < pages.len() {
-            let current_page = &pages[cur_page_index];
-            let current_page_rules = input.rules.get(current_page).unwrap();
-
-            let pages_preceding = &pages[..cur_page_index];
-            let pages_proceeding = &pages[cur_page_index + 1..];
-
-            valid_pages = current_page_rules.valid_preceding_pages(pages_preceding)
-                && current_page_rules.valid_proceeding_pages(pages_proceeding);
-
-            cur_page_index += 1;
-        }
-
-        if valid_pages {
+        if page_list_is_valid(pages, &input.rules) {
             let len = pages.len();
             let odd = len % 2;
-            let middle = ((len - odd) / 2) + odd;
-            println!("Len: {len}, Middle: {middle}");
+            let middle = (len - odd) / 2;
             count += pages[middle];
         }
     }
@@ -35,23 +18,62 @@ fn problem05_part1(input: &Input) -> Result<i32, Error> {
     Ok(count)
 }
 
-fn problem05_part2() -> Result<i32, Error> {
+fn problem05_part2(input: &Input) -> Result<i32, Error> {
     let mut count = 0;
+
+    for pages in &input.page_lists {
+        if !page_list_is_valid(pages, &input.rules) {
+            let mut relevant_rules = Vec::new();
+
+            for page in pages {
+                relevant_rules.push(input.rules.get(page).unwrap());
+            }
+
+            relevant_rules.merge_sort();
+
+            let len = relevant_rules.len();
+            let odd = len % 2;
+            let middle = (len - odd) / 2;
+            count += relevant_rules[middle].page_val;
+        }
+    }
 
     Ok(count)
 }
 
+fn page_list_is_valid(pages: &Vec<i32>, page_rules: &HashMap<i32, PageRules>) -> bool {
+    let mut valid_pages = true;
+
+    let mut cur_page_index = 0;
+    while valid_pages && cur_page_index < pages.len() {
+        let current_page = &pages[cur_page_index];
+        let current_page_rules = page_rules.get(current_page).unwrap();
+
+        let pages_preceding = &pages[..cur_page_index];
+        let pages_proceeding = &pages[cur_page_index + 1..];
+
+        valid_pages = current_page_rules.valid_preceding_pages(pages_preceding)
+            && current_page_rules.valid_proceeding_pages(pages_proceeding);
+
+        cur_page_index += 1;
+    }
+
+    valid_pages
+}
+
 #[derive(Debug)]
 struct PageRules {
+    page_val: i32,
     comes_before: HashSet<i32>,
     comes_after: HashSet<i32>,
 }
 
 impl PageRules {
-    fn new() -> Self {
+    fn new(page_val: i32) -> Self {
         PageRules {
-            comes_before: HashSet::new(),
+            page_val,
             comes_after: HashSet::new(),
+            comes_before: HashSet::new(),
         }
     }
 
@@ -87,6 +109,27 @@ impl PageRules {
     }
 }
 
+impl PartialEq for PageRules {
+    fn eq(&self, other: &Self) -> bool {
+        i32::eq(&self.page_val, &other.page_val)
+    }
+}
+
+impl PartialOrd for PageRules {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        if other.comes_after.contains(&self.page_val) {
+            Some(std::cmp::Ordering::Less)
+        } else if other.comes_before.contains(&self.page_val) {
+            Some(std::cmp::Ordering::Greater)
+        } else if self.eq(other) {
+            Some(std::cmp::Ordering::Equal)
+        } else {
+            // We'll explode if there's a missing rule
+            None
+        }
+    }
+}
+
 #[derive(Debug)]
 struct Input {
     rules: HashMap<i32, PageRules>,
@@ -105,10 +148,10 @@ fn split_rules_and_pages(input: Vec<String>) -> Result<Input, Error> {
         let right_num: i32 = cur_line[pipe_index + 1..].parse()?;
 
         if !rules.contains_key(&left_num) {
-            rules.insert(left_num, PageRules::new());
+            rules.insert(left_num, PageRules::new(left_num));
         }
         if !rules.contains_key(&right_num) {
-            rules.insert(right_num, PageRules::new());
+            rules.insert(right_num, PageRules::new(right_num));
         }
 
         // Confusing piece here. The left number comes before the right
@@ -146,7 +189,7 @@ pub fn problem05() -> Result<(), Error> {
 
     let solution_one = problem05_part1(&parsed_input)?;
     println!("Problem 05 Part 1: {solution_one}");
-    let solution_two = problem05_part2()?;
+    let solution_two = problem05_part2(&parsed_input)?;
     println!("Problem 05 Part 2: {solution_two}");
 
     Ok(())
