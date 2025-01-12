@@ -1,8 +1,6 @@
-use std::collections::HashSet;
-
 use strum::VariantArray;
 
-use crate::structures::coordinate::{traverse, Direction};
+use crate::structures::coordinate::{Coordinate, Direction};
 use crate::structures::grid::Grid;
 use crate::{parse_input, Error};
 
@@ -36,22 +34,22 @@ fn problem04_part2(grid: &Grid<char>) -> Result<i32, Error> {
     Ok(count)
 }
 
-const x_mas_strs: &[&str] = &["MMSS", "MSSM", "SSMM", "SMMS"];
+const X_MAS_STRS: &[&str] = &["MMSS", "MSSM", "SSMM", "SMMS"];
 
 fn index_has_x_mas(row: usize, column: usize, grid: &Grid<char>) -> Result<bool, Error> {
     let mut strip: Vec<char> = Vec::new();
 
     let mut coordinates = Vec::new();
-    coordinates.push(traverse((row, column), Direction::NorthEast));
-    coordinates.push(traverse((row, column), Direction::SouthEast));
-    coordinates.push(traverse((row, column), Direction::SouthWest));
-    coordinates.push(traverse((row, column), Direction::NorthWest));
+    coordinates.push(Coordinate::new(row, column).traverse(Direction::NorthEast));
+    coordinates.push(Coordinate::new(row, column).traverse(Direction::SouthEast));
+    coordinates.push(Coordinate::new(row, column).traverse(Direction::SouthWest));
+    coordinates.push(Coordinate::new(row, column).traverse(Direction::NorthWest));
 
     for coordinate in coordinates {
         match coordinate {
             None => return Ok(false),
             Some(c) => {
-                if let Ok(Some(c)) = grid.get(c.0, c.1) {
+                if let Ok(Some(c)) = grid.get(c.row, c.column) {
                     strip.push(c)
                 }
             }
@@ -59,7 +57,7 @@ fn index_has_x_mas(row: usize, column: usize, grid: &Grid<char>) -> Result<bool,
     }
 
     let strip_str: String = strip.into_iter().collect();
-    Ok(x_mas_strs.contains(&strip_str.as_str()))
+    Ok(X_MAS_STRS.contains(&strip_str.as_str()))
 }
 
 fn count_xmas_at_row_column(row: usize, column: usize, grid: &Grid<char>) -> i32 {

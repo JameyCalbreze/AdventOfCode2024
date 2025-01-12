@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use thiserror::Error;
 
-use super::coordinate::{traverse, Direction};
+use super::coordinate::{Coordinate, Direction};
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
@@ -82,13 +82,13 @@ where
             None => return Ok(None),
         }
 
-        let mut coordinate = (row, column);
+        let mut coordinate = Coordinate::new(row, column);
         for _ in 1..len {
-            coordinate = match traverse(coordinate, direction) {
+            coordinate = match coordinate.traverse(direction) {
                 Some(c) => c,
                 None => return Err(Error::TraversalError),
             };
-            match self.get(coordinate.0, coordinate.1)? {
+            match self.get(coordinate.row, coordinate.column)? {
                 Some(t) => strip.push(t),
                 None => return Ok(None),
             }

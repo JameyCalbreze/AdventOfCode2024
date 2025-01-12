@@ -2,7 +2,6 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{parse_input, utils::MergeSort, Error};
 
-/// Is the list of pages correct? If so what is the middle page?
 fn problem05_part1(input: &Input) -> Result<i32, Error> {
     let mut count = 0;
 
