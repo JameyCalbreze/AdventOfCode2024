@@ -12,6 +12,7 @@ mod problem03;
 mod problem04;
 mod problem05;
 mod problem06;
+mod problem07;
 mod structures;
 mod utils;
 
@@ -81,7 +82,9 @@ fn main() {
     let _ = problem03::problem03();
     let _ = problem04::problem04();
     let _ = problem05::problem05();
-    match problem06::problem06() {
+    // Slow! Not running until I optimize part2
+    // let _ = problem06::problem06();
+    match problem07::problem07() {
         Ok(_) => (),
         Err(e) => println!("{e}"),
     }

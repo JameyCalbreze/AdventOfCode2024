@@ -90,11 +90,11 @@ fn traverse_grid_from_point(
         let next_position = match traverse(position, direction) {
             Some(pos) => match grid.valid_index(pos.0, pos.1) {
                 true => pos,
-                // Left the grid in a positive index.
+                // Left the grid in a positive index (Overflow).
                 false => return Ok(Termination::OutOfBounds(visited)),
             },
 
-            // We've left the grid in an impossible index.
+            // We've left the grid in an impossible index (Underflow).
             None => return Ok(Termination::OutOfBounds(visited)),
         };
 
