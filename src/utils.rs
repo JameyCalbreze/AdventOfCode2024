@@ -1,4 +1,5 @@
 pub trait MergeSort {
+    /// In place merge sort which overwrites the original implementing struct
     fn merge_sort(&mut self);
 }
 

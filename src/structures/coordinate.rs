@@ -1,6 +1,6 @@
 use strum_macros::{Display, EnumString, VariantArray};
 
-#[derive(Debug, Clone, Copy, EnumString, Display, VariantArray)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display, VariantArray)]
 pub enum Direction {
     North,
     NorthEast,
@@ -10,6 +10,21 @@ pub enum Direction {
     SouthWest,
     West,
     NorthWest,
+}
+
+impl Direction {
+    pub fn rotate_90(&self) -> Direction {
+        match self {
+            Direction::North => Direction::East,
+            Direction::NorthEast => Direction::SouthEast,
+            Direction::East => Direction::South,
+            Direction::SouthEast => Direction::SouthWest,
+            Direction::South => Direction::West,
+            Direction::SouthWest => Direction::NorthWest,
+            Direction::West => Direction::North,
+            Direction::NorthWest => Direction::NorthEast,
+        }
+    }
 }
 
 pub type Coordinate = (usize, usize);
@@ -96,6 +111,8 @@ pub fn traverse(coordinate: Coordinate, direction: Direction) -> Option<Coordina
 }
 
 mod test {
+    use strum::VariantArray;
+
     use super::*;
 
     #[test]
@@ -160,5 +177,15 @@ mod test {
         assert_eq!(None, traverse((0, 1), Direction::NorthWest));
         assert_eq!(None, traverse((1, 0), Direction::NorthWest));
         assert_eq!(Some((0, 0)), traverse((1, 1), Direction::NorthWest));
+    }
+
+    #[test]
+    fn direction_cycles_with_rotate_90() {
+        for direction in Direction::VARIANTS {
+            assert_eq!(
+                direction,
+                &direction.rotate_90().rotate_90().rotate_90().rotate_90()
+            );
+        }
     }
 }

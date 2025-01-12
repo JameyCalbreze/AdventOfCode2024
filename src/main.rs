@@ -1,4 +1,8 @@
-use std::{fs::File, io::Read, num::ParseIntError};
+use std::{
+    fs::File,
+    io::Read,
+    num::{ParseIntError, TryFromIntError},
+};
 
 use thiserror::Error;
 
@@ -7,6 +11,7 @@ mod problem02;
 mod problem03;
 mod problem04;
 mod problem05;
+mod problem06;
 mod structures;
 mod utils;
 
@@ -26,6 +31,10 @@ pub enum Error {
     /// Failure to initialize the grid for this problem
     #[error(transparent)]
     GridInitFailure(#[from] structures::grid::Error),
+
+    /// Failed to convert usize to i32
+    #[error(transparent)]
+    TryFromIntError(#[from] TryFromIntError),
 }
 
 /// Read the given file and return a vector of strings
@@ -71,7 +80,8 @@ fn main() {
     let _ = problem02::problem02();
     let _ = problem03::problem03();
     let _ = problem04::problem04();
-    match problem05::problem05() {
+    let _ = problem05::problem05();
+    match problem06::problem06() {
         Ok(_) => (),
         Err(e) => println!("{e}"),
     }
