@@ -92,6 +92,25 @@ impl<T> Coordinate<T> {
 
 impl<T> Coordinate<T>
 where
+    T: CheckedSub + Copy,
+{
+    pub fn get_slope_to(&self, other: &Coordinate<T>) -> Option<Coordinate<T>> {
+        let row_delta = match other.row.checked_sub(self.row) {
+            Some(r) => r,
+            None => return None,
+        };
+        let column_delta = match other.column.checked_sub(self.column) {
+            Some(c) => c,
+            None => return None,
+        };
+
+        // This is the slope moving from a to b
+        Some(Coordinate::new(row_delta, column_delta))
+    }
+}
+
+impl<T> Coordinate<T>
+where
     T: CheckedIncrement + CheckedDecrement + Copy,
 {
     pub fn traverse(&self, direction: Direction) -> Option<Coordinate<T>> {

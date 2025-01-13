@@ -4,7 +4,7 @@ use crate::structures::coordinate::{Coordinate, Direction};
 use crate::structures::grid::Grid;
 use crate::{parse_input, Error};
 
-fn problem04_part1(grid: &Grid<char>) -> Result<i32, Error> {
+fn problem04_part1(grid: &Grid<usize, char>) -> Result<i32, Error> {
     let mut count = 0;
 
     for row in 0..grid.rows() {
@@ -17,7 +17,7 @@ fn problem04_part1(grid: &Grid<char>) -> Result<i32, Error> {
     Ok(count)
 }
 
-fn problem04_part2(grid: &Grid<char>) -> Result<i32, Error> {
+fn problem04_part2(grid: &Grid<usize, char>) -> Result<i32, Error> {
     let mut count = 0;
 
     for row in 0..grid.rows() {
@@ -36,7 +36,7 @@ fn problem04_part2(grid: &Grid<char>) -> Result<i32, Error> {
 
 const X_MAS_STRS: &[&str] = &["MMSS", "MSSM", "SSMM", "SMMS"];
 
-fn index_has_x_mas(row: usize, column: usize, grid: &Grid<char>) -> Result<bool, Error> {
+fn index_has_x_mas(row: usize, column: usize, grid: &Grid<usize, char>) -> Result<bool, Error> {
     let mut strip: Vec<char> = Vec::new();
 
     let mut coordinates = Vec::new();
@@ -60,7 +60,7 @@ fn index_has_x_mas(row: usize, column: usize, grid: &Grid<char>) -> Result<bool,
     Ok(X_MAS_STRS.contains(&strip_str.as_str()))
 }
 
-fn count_xmas_at_row_column(row: usize, column: usize, grid: &Grid<char>) -> i32 {
+fn count_xmas_at_row_column(row: usize, column: usize, grid: &Grid<usize, char>) -> i32 {
     let mut count = 0;
 
     // There are 8 possible directions to go.
@@ -76,7 +76,7 @@ fn count_xmas_at_row_column(row: usize, column: usize, grid: &Grid<char>) -> i32
     count
 }
 
-fn init_grid_from_input(input: Vec<String>) -> Result<Grid<char>, Error> {
+fn init_grid_from_input(input: Vec<String>) -> Result<Grid<usize, char>, Error> {
     let rows: usize = input.len();
     let columns: usize = input[0].len();
     let mut grid = Grid::new(rows, columns);

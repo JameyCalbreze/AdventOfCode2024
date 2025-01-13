@@ -1,14 +1,16 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display, hash::Hash};
 
 use thiserror::Error;
+
+use crate::utils::numbers::{CheckedDecrement, CheckedIncrement, LessThanZero};
 
 use super::coordinate::{Coordinate, Direction};
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     /// Either a row or a height index is out of bounds
-    #[error("{0}, {1} is out of bounds")]
-    IndexOutOfBounds(String, usize),
+    #[error("{0}")]
+    IndexOutOfBounds(String),
 
     /// When attempting to traverse to an index which does not fit in usize
     #[error("Attempted to traverse to an impossible index")]
@@ -16,21 +18,31 @@ pub enum Error {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Grid<T>
+pub struct Grid<I, T>
 where
+    I: Sized + Hash + Eq,
     T: Sized + Copy,
 {
-    rows: usize,
-    columns: usize,
-    data: HashMap<(usize, usize), T>,
+    rows: I,
+    columns: I,
+    data: HashMap<Coordinate<I>, T>,
 }
 
-impl<T> Grid<T>
+impl<I, T> Grid<I, T>
 where
+    I: Sized
+        + Copy
+        + Hash
+        + Eq
+        + CheckedIncrement
+        + CheckedDecrement
+        + LessThanZero
+        + Ord
+        + Display,
     T: Sized + Copy,
 {
     /// Don't initialize this with zero values. That's gonna break stuff!
-    pub fn new(rows: usize, columns: usize) -> Self {
+    pub fn new(rows: I, columns: I) -> Self {
         Grid {
             rows,
             columns,
@@ -38,29 +50,40 @@ where
         }
     }
 
-    pub fn rows(&self) -> usize {
+    /// Create a new grid of the same size as this grid
+    pub fn clone_to_empty(&self) -> Self {
+        Grid {
+            rows: self.rows,
+            columns: self.columns,
+            data: HashMap::new(),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn rows(&self) -> I {
         self.rows
     }
 
-    pub fn columns(&self) -> usize {
+    pub fn columns(&self) -> I {
         self.columns
     }
 
     /// Read out the value at the specified index. Returned value is copied if present
     /// and will not return a reference
-    pub fn get(&self, row: usize, column: usize) -> Result<Option<T>, Error> {
-        self.valid_row(row)?;
-        self.valid_column(column)?;
-        Ok(match self.data.get(&(row, column)) {
+    pub fn get(&self, row: I, column: I) -> Result<Option<T>, Error> {
+        self.assert_valid_index(row, column)?;
+        Ok(match self.data.get(&Coordinate::new(row, column)) {
             Some(t) => Some(*t),
             None => None,
         })
     }
 
-    pub fn set(&mut self, row: usize, column: usize, val: T) -> Result<(), Error> {
-        self.valid_row(row)?;
-        self.valid_column(column)?;
-        self.data.insert((row, column), val);
+    pub fn set(&mut self, row: I, column: I, val: T) -> Result<(), Error> {
+        self.assert_valid_index(row, column)?;
+        self.data.insert(Coordinate::new(row, column), val);
         Ok(())
     }
 
@@ -70,8 +93,8 @@ where
     /// have values present. Otherwise we return None
     pub fn get_strip(
         &self,
-        row: usize,
-        column: usize,
+        row: I,
+        column: I,
         len: usize,
         direction: Direction,
     ) -> Result<Option<Vec<T>>, Error> {
@@ -97,25 +120,40 @@ where
         Ok(Some(strip))
     }
 
-    pub fn valid_index(&self, row: usize, column: usize) -> bool {
-        self.valid_row(row).is_ok() && self.valid_column(column).is_ok()
+    pub fn valid_index(&self, row: I, column: I) -> bool {
+        self.valid_row(row) && self.valid_column(column)
     }
 
     // Private methods
 
-    fn valid_row(&self, row: usize) -> Result<(), Error> {
-        if row >= self.rows {
-            Err(Error::IndexOutOfBounds("Row".to_string(), row))
-        } else {
+    fn assert_valid_index(&self, row: I, column: I) -> Result<(), Error> {
+        if self.valid_index(row, column) {
             Ok(())
+        } else {
+            Err(Error::IndexOutOfBounds(format!(
+                "Row: {}, Column: {} is invalid",
+                row, column
+            )))
         }
     }
 
-    fn valid_column(&self, column: usize) -> Result<(), Error> {
-        if column >= self.columns {
-            Err(Error::IndexOutOfBounds("Column".to_string(), column))
+    fn valid_row(&self, row: I) -> bool {
+        if row.less_than_zero() {
+            false
+        } else if row >= self.rows {
+            false
         } else {
-            Ok(())
+            true
+        }
+    }
+
+    fn valid_column(&self, column: I) -> bool {
+        if column.less_than_zero() {
+            false
+        } else if column >= self.columns {
+            false
+        } else {
+            true
         }
     }
 }
@@ -126,20 +164,20 @@ mod test {
 
     #[test]
     fn test_create_grid() -> Result<(), Error> {
-        let grid: Grid<i32> = Grid::new(0, 0);
+        let grid: Grid<usize, i32> = Grid::new(0, 0);
         Ok(())
     }
 
     #[test]
     fn test_get_from_grid() -> Result<(), Error> {
-        let grid: Grid<i32> = Grid::new(1, 1);
+        let grid: Grid<usize, i32> = Grid::new(1, 1);
         assert_eq!(None, grid.get(0, 0)?);
         Ok(())
     }
 
     #[test]
     fn test_set_and_get_from_grid() -> Result<(), Error> {
-        let mut grid: Grid<i32> = Grid::new(10, 10);
+        let mut grid: Grid<usize, i32> = Grid::new(10, 10);
         for row in 0..10 {
             for column in 0..10 {
                 assert_eq!(None, grid.get(row, column)?);
@@ -168,13 +206,17 @@ mod test {
 
     #[test]
     fn test_invalid_index() -> Result<(), Error> {
-        let grid: Grid<u8> = Grid::new(10, 10);
+        let grid: Grid<usize, u8> = Grid::new(10, 10);
         assert_eq!(
-            Err(Error::IndexOutOfBounds("Row".to_string(), 11)),
+            Err(Error::IndexOutOfBounds(
+                "Row: 11, Column: 0 is invalid".to_string()
+            )),
             grid.get(11, 0)
         );
         assert_eq!(
-            Err(Error::IndexOutOfBounds("Column".to_string(), 11)),
+            Err(Error::IndexOutOfBounds(
+                "Row: 0, Column: 11 is invalid".to_string()
+            )),
             grid.get(0, 11)
         );
         Ok(())

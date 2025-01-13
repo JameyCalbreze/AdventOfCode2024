@@ -169,3 +169,43 @@ impl CheckedAdd for u64 {
         u64::checked_add(*self, rhs)
     }
 }
+
+pub trait LessThanZero {
+    fn less_than_zero(&self) -> bool;
+}
+
+impl LessThanZero for usize {
+    fn less_than_zero(&self) -> bool {
+        false
+    }
+}
+
+impl LessThanZero for u32 {
+    fn less_than_zero(&self) -> bool {
+        false
+    }
+}
+
+impl LessThanZero for u64 {
+    fn less_than_zero(&self) -> bool {
+        false
+    }
+}
+
+impl LessThanZero for isize {
+    fn less_than_zero(&self) -> bool {
+        self < &(0 as isize)
+    }
+}
+
+impl LessThanZero for i32 {
+    fn less_than_zero(&self) -> bool {
+        self < &(0 as i32)
+    }
+}
+
+impl LessThanZero for i64 {
+    fn less_than_zero(&self) -> bool {
+        self < &(0 as i64)
+    }
+}

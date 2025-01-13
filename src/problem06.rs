@@ -52,7 +52,7 @@ fn problem06_part2(input: &mut Input) -> Result<i32, Error> {
 }
 
 struct Input {
-    grid: Grid<char>,
+    grid: Grid<usize, char>,
     starting_pos: Coordinate<usize>,
 }
 
@@ -65,7 +65,7 @@ enum Termination {
 }
 
 fn traverse_grid_from_point(
-    grid: &Grid<char>,
+    grid: &Grid<usize, char>,
     starting_pos: Coordinate<usize>,
 ) -> Result<Termination, Error> {
     let mut direction = Direction::North;
